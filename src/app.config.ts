@@ -6,7 +6,9 @@ export default defineAppConfig({
     'pages/memory/index',
     'pages/shotlist/index',
     'pages/contribution/index',
-    'pages/publish/index'
+    'pages/publish/index',
+    'pages/draft-detail/index',
+    'pages/album-detail/index'
   ],
   window: {
     backgroundTextStyle: 'light',

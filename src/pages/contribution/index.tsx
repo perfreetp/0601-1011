@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, Image, Button, Input } from '@tarojs/components';
+import { View, Text, Image, Button, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
 import { useAppStore } from '@/store/appStore';
@@ -8,20 +8,55 @@ import PageHeader from '@/components/PageHeader';
 import MemberAvatar from '@/components/MemberAvatar';
 import styles from './index.module.scss';
 
-const PICSUM_PORTRAIT = [1027, 1062, 1074, 177, 338, 342, 433, 64, 65, 1005];
-const PICSUM_LANDSCAPE = [1015, 1018, 1019, 1025, 1036, 1037, 1039, 1043, 1044, 1045];
-const PICSUM_GROUP = [1027, 1083, 1084, 237, 240, 449, 450, 541, 550];
-const PICSUM_OTHER = [106, 121, 122, 129, 145, 150, 152, 153, 167];
+interface PicPoolItem { id: number; cat: MaterialCategory }
 
-const randomOf = (arr: number[]) => arr[Math.floor(Math.random() * arr.length)];
+const PICSUM_POOL: PicPoolItem[] = [
+  { id: 1027, cat: 'portrait' },
+  { id: 1062, cat: 'portrait' },
+  { id: 1074, cat: 'portrait' },
+  { id: 177, cat: 'group' },
+  { id: 338, cat: 'group' },
+  { id: 64, cat: 'group' },
+  { id: 1015, cat: 'landscape' },
+  { id: 1018, cat: 'landscape' },
+  { id: 1036, cat: 'landscape' },
+  { id: 1039, cat: 'landscape' },
+  { id: 1043, cat: 'landscape' },
+  { id: 1044, cat: 'landscape' },
+  { id: 106, cat: 'other' },
+  { id: 122, cat: 'other' },
+  { id: 152, cat: 'other' },
+  { id: 342, cat: 'portrait' },
+  { id: 433, cat: 'group' },
+  { id: 541, cat: 'group' },
+  { id: 1045, cat: 'landscape' },
+  { id: 1025, cat: 'landscape' },
+  { id: 100, cat: 'landscape' },
+  { id: 111, cat: 'other' },
+  { id: 129, cat: 'other' },
+  { id: 150, cat: 'other' },
+];
+
+type Stage = 'home' | 'pick' | 'confirm';
+
+interface PendingMaterial {
+  id: string;
+  picId: number;
+  type: MaterialType;
+  category: MaterialCategory;
+  url: string;
+  thumbnail: string;
+  location: string;
+}
 
 const ContributionPage: React.FC = () => {
   const { members, materials, teamName, itinerary, addMaterial } = useAppStore();
 
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [uploadType, setUploadType] = useState<MaterialType>('photo');
-  const [uploadCategory, setUploadCategory] = useState<MaterialCategory>('landscape');
-  const [uploadLocation, setUploadLocation] = useState('');
+  const [stage, setStage] = useState<Stage>('home');
+  const [selectedPicIds, setSelectedPicIds] = useState<number[]>([]);
+  const [pending, setPending] = useState<PendingMaterial[]>([]);
+
+  const leader = members.find(m => m.role === 'leader') || members[0];
 
   const locationOptions = useMemo(() => {
     const locs = new Set<string>();
@@ -29,91 +64,100 @@ const ContributionPage: React.FC = () => {
     return Array.from(locs).slice(0, 6);
   }, [itinerary]);
 
-  const memberStats = useMemo(() => {
-    return members.map(m => ({
+  const candidatePhotos = useMemo(() => {
+    const shuffled = [...PICSUM_POOL].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 18);
+  }, []);
+
+  const memberStats = useMemo(() => (
+    members.map(m => ({
       ...m,
       count: materials.filter(mat => mat.uploadedBy === m.id).length
-    }));
-  }, [members, materials]);
+    }))
+  ), [members, materials]);
 
   const totalPhotos = materials.filter(m => m.type === 'photo').length;
   const totalVideos = materials.filter(m => m.type === 'video').length;
 
-  const recentContributions = useMemo(() => {
-    return memberStats
+  const recentContributions = useMemo(() => (
+    memberStats
       .filter(m => m.count > 0)
       .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-  }, [memberStats]);
+      .slice(0, 5)
+  ), [memberStats]);
 
-  const leader = members.find(m => m.role === 'leader') || members[0];
-
-  const handleUpload = () => {
-    setUploadType('photo');
-    setUploadCategory('landscape');
-    setUploadLocation(locationOptions[0] || '');
-    setShowUploadModal(true);
+  const togglePicSelect = (picId: number) => {
+    setSelectedPicIds(prev =>
+      prev.includes(picId)
+        ? prev.filter(id => id !== picId)
+        : [...prev, picId]
+    );
   };
 
-  const doUpload = () => {
-    const picId = uploadCategory === 'portrait'
-      ? randomOf(PICSUM_PORTRAIT)
-      : uploadCategory === 'landscape'
-      ? randomOf(PICSUM_LANDSCAPE)
-      : uploadCategory === 'group'
-      ? randomOf(PICSUM_GROUP)
-      : randomOf(PICSUM_OTHER);
-
-    const url = `https://picsum.photos/id/${picId}/800/600`;
-    const thumbnail = `https://picsum.photos/id/${picId}/400/400`;
-
-    addMaterial({
-      type: uploadType,
-      url,
-      thumbnail,
-      category: uploadCategory,
-      location: uploadLocation || '未分类',
-      uploadedBy: leader.id,
-      duration: uploadType === 'video' ? Math.floor(Math.random() * 60) + 10 : undefined,
-      isShaky: Math.random() < 0.25
+  const goToConfirm = () => {
+    if (selectedPicIds.length === 0) {
+      Taro.showToast({ title: '请选择至少1个素材', icon: 'none' });
+      return;
+    }
+    const defaultLoc = locationOptions[0] || '稻城亚丁';
+    const list: PendingMaterial[] = selectedPicIds.map(picId => {
+      const found = PICSUM_POOL.find(p => p.id === picId);
+      const rand = Math.random().toString(36).slice(2, 7);
+      return {
+        id: `pending_${picId}_${rand}`,
+        picId,
+        type: Math.random() < 0.7 ? 'photo' : 'video',
+        category: found?.cat || 'landscape',
+        url: `https://picsum.photos/id/${picId}/800/600`,
+        thumbnail: `https://picsum.photos/id/${picId}/400/400`,
+        location: defaultLoc
+      };
     });
-
-    setShowUploadModal(false);
-    Taro.showToast({ title: '上传成功', icon: 'success' });
+    setPending(list);
+    setStage('confirm');
   };
 
-  const handleBatchUpload = () => {
-    const count = Math.floor(Math.random() * 3) + 2;
-    for (let i = 0; i < count; i++) {
-      const cat: MaterialCategory = (['portrait', 'landscape', 'group', 'other'] as MaterialCategory[])[
-        Math.floor(Math.random() * 4)
-      ];
-      const picId = cat === 'portrait'
-        ? randomOf(PICSUM_PORTRAIT)
-        : cat === 'landscape'
-        ? randomOf(PICSUM_LANDSCAPE)
-        : cat === 'group'
-        ? randomOf(PICSUM_GROUP)
-        : randomOf(PICSUM_OTHER);
+  const updatePending = (pid: string, field: 'location' | 'category' | 'type', value: string) => {
+    setPending(prev =>
+      prev.map(item =>
+        item.id === pid ? { ...item, [field]: value } : item
+      )
+    );
+  };
 
-      const url = `https://picsum.photos/id/${picId}/800/600`;
-      const thumbnail = `https://picsum.photos/id/${picId}/400/400`;
-      const t: MaterialType = Math.random() < 0.7 ? 'photo' : 'video';
-      const loc = locationOptions[Math.floor(Math.random() * locationOptions.length)] || '未分类';
-
+  const doConfirmUpload = () => {
+    let photoCount = 0;
+    let videoCount = 0;
+    pending.forEach(item => {
+      const isVideo = item.type === 'video';
+      if (isVideo) {
+        videoCount++;
+      } else {
+        photoCount++;
+      }
       addMaterial({
-        type: t,
-        url,
-        thumbnail,
-        category: cat,
-        location: loc,
+        type: item.type,
+        url: item.url,
+        thumbnail: item.thumbnail,
+        category: item.category,
+        location: item.location || '未分类',
         uploadedBy: leader.id,
-        duration: t === 'video' ? Math.floor(Math.random() * 60) + 10 : undefined,
+        duration: isVideo ? Math.floor(Math.random() * 60) + 10 : undefined,
         isShaky: Math.random() < 0.25
       });
-    }
-    setShowUploadModal(false);
-    Taro.showToast({ title: `已上传 ${count} 个素材`, icon: 'success' });
+    });
+
+    setStage('home');
+    setSelectedPicIds([]);
+    setPending([]);
+
+    const parts: string[] = [];
+    if (photoCount > 0) parts.push(`${photoCount}张`);
+    if (videoCount > 0) parts.push(`${videoCount}段`);
+    Taro.showToast({
+      title: `已上传 ${parts.join('/')} 素材`,
+      icon: 'success'
+    });
   };
 
   const handleInvite = () => {
@@ -121,17 +165,12 @@ const ContributionPage: React.FC = () => {
     Taro.setClipboardData({ data: `https://tripclip.app/invite/${teamName}` });
   };
 
-  return (
-    <View className="pageContainer">
-      <PageHeader
-        title="成员投稿"
-        subtitle={`${teamName} · ${members.length} 位成员`}
-      />
-
-      <View className={styles.uploadCard} onClick={handleUpload}>
+  const renderHome = () => (
+    <>
+      <View className={styles.uploadCard} onClick={() => setStage('pick')}>
         <Text className={styles.uploadIcon}>📤</Text>
         <Text className={styles.uploadTitle}>上传我的素材</Text>
-        <Text className={styles.uploadDesc}>支持照片和视频，自动同步到团队相册</Text>
+        <Text className={styles.uploadDesc}>从手机相册选择照片和视频，多选后进入确认上传</Text>
       </View>
 
       <View className={styles.memberStats}>
@@ -199,88 +238,199 @@ const ContributionPage: React.FC = () => {
           <Text className={styles.inviteBtnText}>邀请</Text>
         </Button>
       </View>
+    </>
+  );
 
-      {showUploadModal && (
-        <View className={styles.modalMask} onClick={() => setShowUploadModal(false)}>
-          <View className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <Text className={styles.modalTitle}>📤 上传素材</Text>
+  const renderPick = () => (
+    <>
+      <PageHeader
+        title="选择素材"
+        subtitle={`已选 ${selectedPicIds.length} / ${candidatePhotos.length}`}
+      />
 
-            <View className={styles.formGroup}>
-              <Text className={styles.formLabel}>选择类型</Text>
-              <View className={styles.segmentRow}>
-                <View
-                  className={classnames(styles.segmentItem, uploadType === 'photo' && styles.active)}
-                  onClick={() => setUploadType('photo')}
-                >
-                  <Text className={styles.segmentIcon}>🖼️</Text>
-                  <Text className={styles.segmentText}>照片</Text>
-                </View>
-                <View
-                  className={classnames(styles.segmentItem, uploadType === 'video' && styles.active)}
-                  onClick={() => setUploadType('video')}
-                >
-                  <Text className={styles.segmentIcon}>🎬</Text>
-                  <Text className={styles.segmentText}>视频</Text>
-                </View>
-              </View>
-            </View>
+      <View className={styles.selectHint}>
+        <Text className={styles.selectHintText}>
+          请从相册多选照片/视频，点击缩略图选中或取消
+        </Text>
+      </View>
 
-            <View className={styles.formGroup}>
-              <Text className={styles.formLabel}>内容分类</Text>
-              <View className={styles.segmentRow}>
-                {([
-                  { k: 'portrait', label: '人像', icon: '👤' },
-                  { k: 'landscape', label: '风景', icon: '🏔️' },
-                  { k: 'group', label: '合影', icon: '👥' },
-                  { k: 'other', label: '其他', icon: '📷' }
-                ] as { k: MaterialCategory; label: string; icon: string }[]).map(cat => (
-                  <View
-                    key={cat.k}
-                    className={classnames(styles.segmentItem, uploadCategory === cat.k && styles.active)}
-                    onClick={() => setUploadCategory(cat.k)}
-                  >
-                    <Text className={styles.segmentIcon}>{cat.icon}</Text>
-                    <Text className={styles.segmentText}>{cat.label}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-
-            <View className={styles.formGroup}>
-              <Text className={styles.formLabel}>拍摄地点</Text>
-              <View className={styles.locationTags}>
-                {locationOptions.length > 0 ? locationOptions.map(loc => (
-                  <View
-                    key={loc}
-                    className={classnames(styles.tagItem, uploadLocation === loc && styles.active)}
-                    onClick={() => setUploadLocation(loc)}
-                  >
-                    <Text className={styles.tagText}>{loc}</Text>
-                  </View>
-                )) : null}
-              </View>
-              <Input
-                className={styles.formInput}
-                value={uploadLocation}
-                onInput={(e) => setUploadLocation(e.detail.value)}
-                placeholder="或手动输入地点"
+      <View className={styles.pickerGrid}>
+        {candidatePhotos.map(item => {
+          const selected = selectedPicIds.includes(item.id);
+          const catIcon = item.cat === 'portrait'
+            ? '👤'
+            : item.cat === 'landscape'
+            ? '🏔️'
+            : item.cat === 'group'
+            ? '👥'
+            : '📷';
+          const orderIdx = selectedPicIds.indexOf(item.id);
+          return (
+            <View
+              key={item.id}
+              className={classnames(styles.pickerItem, selected && styles.selected)}
+              onClick={() => togglePicSelect(item.id)}
+            >
+              <Image
+                src={`https://picsum.photos/id/${item.id}/400/400`}
+                className={styles.pickerImage}
+                mode="aspectFill"
               />
+              <View className={classnames(styles.pickerBadge, selected && styles.checked)}>
+                <Text className={styles.pickerCheck}>✓</Text>
+              </View>
+              {selected && (
+                <View className={styles.pickerIndex}>
+                  <Text className={styles.pickerIndexText}>{orderIdx + 1}</Text>
+                </View>
+              )}
+              <View className={styles.pickerType}>
+                <Text className={styles.pickerTypeText}>{catIcon}</Text>
+              </View>
             </View>
+          );
+        })}
+      </View>
 
-            <View className={styles.modalButtons}>
-              <Button className={styles.modalCancel} onClick={() => setShowUploadModal(false)}>
-                <Text className={styles.modalCancelText}>取消</Text>
-              </Button>
-              <Button className={styles.modalSecondary} onClick={handleBatchUpload}>
-                <Text className={styles.modalSecondaryText}>随机批量</Text>
-              </Button>
-              <Button className={styles.modalConfirm} onClick={doUpload}>
-                <Text className={styles.modalConfirmText}>确认上传</Text>
-              </Button>
+      <View className={styles.pickerBottomBar}>
+        <Button
+          className={styles.pickerCancelBtn}
+          onClick={() => {
+            setSelectedPicIds([]);
+            setStage('home');
+          }}
+        >
+          <Text className={styles.pickerCancelText}>取消</Text>
+        </Button>
+        <Button
+          className={styles.pickerConfirmBtn}
+          onClick={goToConfirm}
+        >
+          <Text className={styles.pickerConfirmText}>
+            下一步 ({selectedPicIds.length})
+          </Text>
+        </Button>
+      </View>
+    </>
+  );
+
+  const renderConfirm = () => (
+    <>
+      <PageHeader
+        title="确认上传"
+        subtitle={`${pending.length} 个素材待上传`}
+      />
+
+      <View className={styles.confirmHeader}>
+        <Text className={styles.confirmHint}>
+          给每个素材补充地点和分类信息，确认后加入团队相册
+        </Text>
+      </View>
+
+      <ScrollView scrollY className={styles.confirmList}>
+        {pending.map((item, idx) => (
+          <View key={item.id} className={styles.confirmItem}>
+            <Image
+              src={item.thumbnail}
+              className={styles.confirmThumb}
+              mode="aspectFill"
+            />
+
+            <View className={styles.confirmInfo}>
+              <Text className={styles.confirmIndex}>#{idx + 1}</Text>
+
+              <View className={styles.confirmRow}>
+                <Text className={styles.confirmLabel}>类型</Text>
+                <View className={styles.confirmTypeRow}>
+                  {(['photo', 'video'] as MaterialType[]).map(t => (
+                    <Text
+                      key={t}
+                      className={classnames(styles.typeChip, item.type === t && styles.active)}
+                      onClick={() => updatePending(item.id, 'type', t)}
+                    >
+                      {t === 'photo' ? '🖼️ 照片' : '🎬 视频'}
+                    </Text>
+                  ))}
+                </View>
+              </View>
+
+              <View className={styles.confirmRow}>
+                <Text className={styles.confirmLabel}>分类</Text>
+                <View className={styles.confirmCategoryRow}>
+                  {(['portrait', 'landscape', 'group', 'other'] as MaterialCategory[]).map(c => {
+                    const label = c === 'portrait'
+                      ? '👤 人像'
+                      : c === 'landscape'
+                      ? '🏔️ 风景'
+                      : c === 'group'
+                      ? '👥 合影'
+                      : '📷 其他';
+                    return (
+                      <Text
+                        key={c}
+                        className={classnames(styles.catChip, item.category === c && styles.active)}
+                        onClick={() => updatePending(item.id, 'category', c)}
+                      >
+                        {label}
+                      </Text>
+                    );
+                  })}
+                </View>
+              </View>
+
+              <View className={styles.confirmRow}>
+                <Text className={styles.confirmLabel}>地点</Text>
+                <View className={styles.locationRow}>
+                  {locationOptions.map(loc => (
+                    <Text
+                      key={loc}
+                      className={classnames(styles.locChip, item.location === loc && styles.active)}
+                      onClick={() => updatePending(item.id, 'location', loc)}
+                    >
+                      {loc}
+                    </Text>
+                  ))}
+                </View>
+              </View>
             </View>
           </View>
-        </View>
+        ))}
+        <View className={styles.confirmPadding} />
+      </ScrollView>
+
+      <View className={styles.pickerBottomBar}>
+        <Button
+          className={styles.pickerCancelBtn}
+          onClick={() => setStage('pick')}
+        >
+          <Text className={styles.pickerCancelText}>返回</Text>
+        </Button>
+        <Button
+          className={styles.pickerConfirmBtn}
+          onClick={doConfirmUpload}
+        >
+          <Text className={styles.pickerConfirmText}>
+            确认上传 ({pending.length})
+          </Text>
+        </Button>
+      </View>
+    </>
+  );
+
+  return (
+    <View className="pageContainer">
+      {stage === 'home' && (
+        <>
+          <PageHeader
+            title="成员投稿"
+            subtitle={`${teamName} · ${members.length} 位成员`}
+          />
+          {renderHome()}
+        </>
       )}
+
+      {stage === 'pick' && renderPick()}
+      {stage === 'confirm' && renderConfirm()}
     </View>
   );
 };

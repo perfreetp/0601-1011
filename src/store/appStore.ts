@@ -63,6 +63,7 @@ interface AppState {
 
   createAlbum: (options?: { title?: string; photoUrls?: string[]; productionId?: string; confirmedMemberIds?: string[] }) => MemoryAlbum;
   incrementAlbumViews: (albumId: string) => void;
+  getAlbumById: (id: string) => MemoryAlbum | undefined;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -214,16 +215,21 @@ export const useAppStore = create<AppState>((set, get) => ({
   getDraft: (id) => get().drafts.find(d => d.id === id),
 
   publishVideo: (config) => {
-    const { productions, members, selectedMaterials } = get();
+    const { productions, members, selectedMaterials, materials } = get();
     const materialIds = config.materialIds.length > 0 ? config.materialIds : selectedMaterials;
     const materialCount = config.materialCount || materialIds.length;
     const musicTrack = mockMusicTracks.find(m => m.id === config.musicId);
     const productionId = genId('prod');
 
+    const videoPhotoUrls = materials
+      .filter(m => materialIds.includes(m.id))
+      .map(m => m.url);
+
     const album = get().createAlbum({
       title: config.title,
       productionId,
-      confirmedMemberIds: config.confirmedMemberIds
+      confirmedMemberIds: config.confirmedMemberIds,
+      photoUrls: videoPhotoUrls.length > 0 ? videoPhotoUrls : undefined
     });
 
     const newProduction: Production = {
@@ -291,5 +297,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({
       albums: albums.map(a => a.id === albumId ? { ...a, views: a.views + 1 } : a)
     });
-  }
+  },
+
+  getAlbumById: (id) => get().albums.find(a => a.id === id)
 }));

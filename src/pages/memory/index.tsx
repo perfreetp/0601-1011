@@ -143,7 +143,9 @@ const MemoryPage: React.FC = () => {
               <MemoryCard
                 album={album}
                 onClick={(a) => {
-                  if (a.shareLink) handleCopyLink(a.shareLink, a.id);
+                  Taro.navigateTo({
+                    url: `/pages/album-detail/index?albumId=${a.id}${a.productionId ? `&productionId=${a.productionId}` : ''}`
+                  });
                 }}
               />
               {(album.confirmedMemberIds?.length || 0) > 0 && (
@@ -175,7 +177,9 @@ const MemoryPage: React.FC = () => {
             <View key={video.id}>
               <ProductionCard
                 production={video}
-                onClick={() => Taro.navigateTo({ url: `/pages/publish/index?id=${video.id}` })}
+                onClick={() => Taro.navigateTo({
+                  url: `/pages/album-detail/index?productionId=${video.id}${video.albumId ? `&albumId=${video.albumId}` : ''}`
+                })}
               />
               <View className={styles.albumMeta}>
                 <Text className={styles.albumMetaText}>

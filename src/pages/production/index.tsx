@@ -22,7 +22,7 @@ const ProductionPage: React.FC = () => {
   };
 
   const handleEditDraft = (draftId: string) => {
-    Taro.navigateTo({ url: `/pages/publish/index?draftId=${draftId}` });
+    Taro.navigateTo({ url: `/pages/draft-detail/index?draftId=${draftId}` });
   };
 
   const features = [

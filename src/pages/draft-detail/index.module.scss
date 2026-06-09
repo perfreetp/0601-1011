@@ -1,0 +1,239 @@
+@use '@/styles/variables.scss' as *;
+
+.previewCard {
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-lg;
+}
+
+.previewImage {
+  width: 100%;
+  height: 480rpx;
+  display: block;
+}
+
+.previewInfo {
+  padding: $spacing-lg;
+}
+
+.previewTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.previewMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.previewMetaText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.previewMetaTag {
+  font-size: 20rpx;
+  color: $color-primary;
+  background: rgba($color-primary, 0.1);
+  padding: 4rpx 16rpx;
+  border-radius: $radius-round;
+}
+
+.section {
+  margin-bottom: $spacing-lg;
+}
+
+.sectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.configCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.configRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-sm 0;
+  border-bottom: 2rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.configInfo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.configIcon {
+  font-size: 32rpx;
+}
+
+.configLabel {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.configValue {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.configEnabled {
+  font-size: $font-size-sm;
+  color: $color-success;
+  font-weight: $font-weight-medium;
+}
+
+.configDisabled {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.materialGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8rpx;
+  background: $color-bg-card;
+  padding: 8rpx;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+}
+
+.materialThumb {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: $radius-sm;
+  background: $color-bg-gray;
+  display: block;
+}
+
+.materialMore {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: $radius-sm;
+  background: $color-bg-gray;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-semibold;
+}
+
+.membersRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  background: $color-bg-card;
+  padding: $spacing-lg;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+}
+
+.memberItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: calc((100% - 48rpx) / 4);
+}
+
+.memberAvatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: $radius-round;
+  margin-bottom: 8rpx;
+  border: 4rpx solid transparent;
+
+  &.confirmed {
+    border-color: $color-success;
+  }
+}
+
+.memberName {
+  font-size: 20rpx;
+  color: $color-text-secondary;
+  text-align: center;
+  display: block;
+  max-width: 100rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memberStatus {
+  font-size: 18rpx;
+  color: $color-success;
+  margin-top: 2rpx;
+  display: block;
+
+  &.pending {
+    color: $color-text-tertiary;
+  }
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20rpx);
+  display: flex;
+  gap: $spacing-md;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+.editBtn {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-lg;
+  background: $color-bg-card;
+  border-radius: $radius-button;
+  border: 2rpx solid $color-border;
+}
+
+.editBtnText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.publishBtn {
+  @include button-reset;
+  flex: 2;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+  border-radius: $radius-button;
+  border: none;
+}
+
+.publishBtnText {
+  font-size: $font-size-md;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}
+
+.pageBottomPadding {
+  height: 220rpx;
+}

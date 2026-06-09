@@ -1,0 +1,318 @@
+@use '@/styles/variables.scss' as *;
+
+.coverSection {
+  position: relative;
+  margin: -32rpx -32rpx $spacing-lg;
+  width: calc(100% + 64rpx);
+}
+
+.coverImage {
+  width: 100%;
+  height: 420rpx;
+  display: block;
+}
+
+.coverOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.6) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: $spacing-lg;
+}
+
+.coverTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.coverMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.coverMetaText {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.infoCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-lg;
+}
+
+.shareRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+  padding-bottom: $spacing-md;
+  border-bottom: 2rpx solid $color-divider;
+}
+
+.shareInfo {
+  flex: 1;
+  min-width: 0;
+  margin-right: $spacing-md;
+}
+
+.shareLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.shareLink {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  display: block;
+  @include text-ellipsis;
+}
+
+.shareBtn {
+  @include button-reset;
+  height: $button-height-sm;
+  padding: 0 $spacing-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+  border-radius: $radius-button;
+  border: none;
+  flex-shrink: 0;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.shareBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}
+
+.statsRow {
+  display: flex;
+  gap: $spacing-xl;
+}
+
+.statItem {
+  flex: 1;
+  text-align: center;
+}
+
+.statValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  display: block;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+  display: block;
+}
+
+.section {
+  margin-bottom: $spacing-lg;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.sectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.sectionCount {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.videoCard {
+  display: flex;
+  align-items: center;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  box-shadow: $shadow-card;
+  gap: $spacing-md;
+}
+
+.videoCover {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: $radius-md;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.videoCoverImage {
+  width: 100%;
+  height: 100%;
+}
+
+.videoPlayIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 56rpx;
+  height: 56rpx;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.videoPlayIconText {
+  color: $color-text-white;
+  font-size: 24rpx;
+  margin-left: 4rpx;
+}
+
+.videoInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.videoTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: 8rpx;
+  @include text-ellipsis;
+}
+
+.videoMeta {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  display: block;
+}
+
+.videoTagRow {
+  display: flex;
+  gap: $spacing-xs;
+  flex-wrap: wrap;
+  margin-top: $spacing-xs;
+}
+
+.videoTag {
+  font-size: 20rpx;
+  color: $color-primary;
+  background: rgba($color-primary, 0.1);
+  padding: 2rpx 12rpx;
+  border-radius: $radius-round;
+}
+
+.membersSection {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.membersGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+}
+
+.memberItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: calc((100% - 48rpx) / 4);
+}
+
+.memberAvatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: $radius-round;
+  margin-bottom: 8rpx;
+  border: 4rpx solid transparent;
+
+  &.confirmed {
+    border-color: $color-success;
+  }
+}
+
+.memberName {
+  font-size: 22rpx;
+  color: $color-text-secondary;
+  text-align: center;
+  display: block;
+  max-width: 120rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memberStatus {
+  font-size: 18rpx;
+  color: $color-success;
+  margin-top: 2rpx;
+  display: block;
+
+  &.pending {
+    color: $color-text-tertiary;
+  }
+}
+
+.emptyVideo {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+  text-align: center;
+  box-shadow: $shadow-card;
+}
+
+.emptyIcon {
+  font-size: 60rpx;
+  display: block;
+  margin-bottom: $spacing-sm;
+}
+
+.emptyText {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4rpx;
+}
+
+.photoItem {
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: $radius-xs;
+  background: $color-bg-gray;
+}
+
+.photoImage {
+  width: 100%;
+  height: 100%;
+  display: block;
+}

@@ -371,3 +371,250 @@
   color: $color-text-white;
   font-weight: $font-weight-semibold;
 }
+
+.selectHint {
+  background: $color-primary-bg;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-md;
+}
+
+.selectHintText {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  display: block;
+}
+
+.pickerGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6rpx;
+  margin-bottom: 200rpx;
+}
+
+.pickerItem {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: $radius-xs;
+  background: $color-bg-gray;
+  transition: all $transition-fast;
+
+  &.selected {
+    border: 4rpx solid $color-primary;
+  }
+}
+
+.pickerImage {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.pickerBadge {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: $radius-round;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.checked {
+    background: $color-primary;
+    border-color: $color-primary;
+  }
+}
+
+.pickerCheck {
+  color: $color-text-white;
+  font-size: 22rpx;
+  font-weight: $font-weight-bold;
+
+  .pickerBadge:not(.checked) & {
+    display: none;
+  }
+}
+
+.pickerIndex {
+  position: absolute;
+  top: 8rpx;
+  left: 8rpx;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: $radius-round;
+  background: $color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pickerIndexText {
+  color: $color-text-white;
+  font-size: 22rpx;
+  font-weight: $font-weight-bold;
+}
+
+.pickerType {
+  position: absolute;
+  left: 8rpx;
+  bottom: 8rpx;
+  padding: 2rpx 10rpx;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: $radius-xs;
+}
+
+.pickerTypeText {
+  font-size: 20rpx;
+}
+
+.pickerBottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20rpx);
+  display: flex;
+  gap: $spacing-md;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+.pickerCancelBtn {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-lg;
+  background: $color-bg-page;
+  border-radius: $radius-button;
+  border: 2rpx solid $color-border;
+}
+
+.pickerCancelText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.pickerConfirmBtn {
+  @include button-reset;
+  flex: 2;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+  border-radius: $radius-button;
+  border: none;
+}
+
+.pickerConfirmText {
+  font-size: $font-size-md;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}
+
+.confirmHeader {
+  background: $color-primary-bg;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-md;
+}
+
+.confirmHint {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  display: block;
+}
+
+.confirmList {
+  padding-bottom: 220rpx;
+  height: calc(100vh - 500rpx);
+}
+
+.confirmPadding {
+  height: 80rpx;
+}
+
+.confirmItem {
+  display: flex;
+  gap: $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.confirmThumb {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: $radius-md;
+  flex-shrink: 0;
+  background: $color-bg-gray;
+}
+
+.confirmInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.confirmIndex {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+  display: block;
+}
+
+.confirmRow {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: $spacing-sm;
+  gap: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.confirmLabel {
+  font-size: 22rpx;
+  color: $color-text-secondary;
+  flex-shrink: 0;
+  width: 64rpx;
+  line-height: 44rpx;
+}
+
+.confirmTypeRow,
+.confirmCategoryRow,
+.locationRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  flex: 1;
+}
+
+.typeChip,
+.catChip,
+.locChip {
+  font-size: 20rpx;
+  color: $color-text-secondary;
+  background: $color-bg-page;
+  padding: 6rpx 16rpx;
+  border-radius: $radius-round;
+  border: 2rpx solid $color-border;
+  transition: all $transition-fast;
+
+  &.active {
+    background: rgba($color-primary, 0.1);
+    border-color: $color-primary;
+    color: $color-primary;
+    font-weight: $font-weight-medium;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
