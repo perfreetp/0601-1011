@@ -1,0 +1,113 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.99);
+  }
+}
+
+.coverWrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 150%;
+}
+
+.cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.durationBadge {
+  position: absolute;
+  right: $spacing-sm;
+  bottom: $spacing-sm;
+  padding: 4rpx $spacing-sm;
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: $radius-xs;
+}
+
+.durationText {
+  color: $color-text-white;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.statusBadge {
+  position: absolute;
+  top: $spacing-sm;
+  left: $spacing-sm;
+  padding: 6rpx $spacing-sm;
+  border-radius: $radius-sm;
+
+  &.status-draft {
+    background: rgba($color-text-tertiary, 0.9);
+  }
+
+  &.status-processing {
+    background: rgba($color-warning, 0.9);
+  }
+
+  &.status-ready {
+    background: rgba($color-primary, 0.9);
+  }
+
+  &.status-published {
+    background: rgba($color-success, 0.9);
+  }
+}
+
+.statusText {
+  color: $color-text-white;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.content {
+  padding: $spacing-md;
+}
+
+.title {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  @include text-ellipsis;
+}
+
+.metaRow {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-xs;
+}
+
+.metaText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  margin-top: $spacing-sm;
+}
+
+.featureTag {
+  padding: 4rpx 12rpx;
+  background: $color-primary-bg;
+  border-radius: $radius-xs;
+}
+
+.featureText {
+  font-size: $font-size-xs;
+  color: $color-primary;
+}

@@ -1,0 +1,172 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.99);
+    opacity: 0.95;
+  }
+
+  &.completed {
+    border: 2rpx solid $color-success-light;
+    background: linear-gradient(135deg, #ECFDF5 0%, $color-bg-card 100%);
+  }
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: $spacing-sm;
+}
+
+.timeBadge {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.timeText {
+  color: $color-text-white;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+.headerContent {
+  flex: 1;
+}
+
+.pointName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+}
+
+.pointLocation {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-top: $spacing-xs;
+  display: block;
+}
+
+.completedBadge {
+  background: $color-success;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  flex-shrink: 0;
+}
+
+.completedText {
+  color: $color-text-white;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.description {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.6;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.progressArea {
+  margin-bottom: $spacing-sm;
+}
+
+.progressInfo {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: $spacing-xs;
+}
+
+.progressLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.progressValue {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.progressBar {
+  height: 8rpx;
+  background: $color-bg-gray;
+  border-radius: $radius-round;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-round;
+  transition: width $transition-base;
+}
+
+.shotList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  margin-top: $spacing-sm;
+}
+
+.shotTag {
+  padding: $spacing-xs $spacing-sm;
+  background: $color-bg-gray;
+  border-radius: $radius-sm;
+
+  &.shotDone {
+    background: rgba($color-success, 0.1);
+
+    .shotTagText {
+      color: $color-success;
+    }
+  }
+
+  &.shotHigh {
+    background: rgba($color-error, 0.1);
+
+    .shotTagText {
+      color: $color-error;
+    }
+  }
+}
+
+.shotTagText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.moreText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  padding: $spacing-xs 0;
+}
+
+.prioritySummary {
+  margin-top: $spacing-sm;
+}
+
+.alertTag {
+  display: inline-flex;
+  align-items: center;
+  padding: $spacing-xs $spacing-sm;
+  background: $color-secondary-bg;
+  border-radius: $radius-sm;
+}
+
+.alertText {
+  font-size: $font-size-xs;
+  color: $color-secondary;
+  font-weight: $font-weight-medium;
+}

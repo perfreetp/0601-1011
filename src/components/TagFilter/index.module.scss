@@ -1,0 +1,56 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  margin-bottom: $spacing-md;
+  white-space: nowrap;
+}
+
+.tagsWrapper {
+  display: inline-flex;
+  gap: $spacing-sm;
+  padding: $spacing-xs 0;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: $spacing-sm $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-button;
+  border: 2rpx solid transparent;
+  transition: all $transition-fast;
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &.active {
+    background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+    border-color: $color-primary;
+
+    .tagLabel {
+      color: $color-text-white;
+    }
+  }
+}
+
+.tagLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+}
+
+.tagCount {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  background: $color-bg-gray;
+  padding: 2rpx 12rpx;
+  border-radius: $radius-round;
+
+  &.activeCount {
+    color: $color-primary;
+    background: rgba(255, 255, 255, 0.25);
+  }
+}

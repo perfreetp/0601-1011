@@ -1,0 +1,129 @@
+@use '@/styles/variables.scss' as *;
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-sm;
+  transition: all $transition-base;
+
+  &.status-completed {
+    background: linear-gradient(135deg, #ECFDF5 0%, $color-bg-card 100%);
+
+    .name {
+      text-decoration: line-through;
+      color: $color-text-tertiary;
+    }
+  }
+
+  &.status-skipped {
+    opacity: 0.6;
+    background: $color-bg-hover;
+
+    .name {
+      text-decoration: line-through;
+      color: $color-text-tertiary;
+    }
+  }
+}
+
+.leftSection {
+  display: flex;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.radio {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: $radius-round;
+  border: 3rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+  transition: all $transition-fast;
+
+  &.radioCompleted {
+    background: $color-success;
+    border-color: $color-success;
+  }
+
+  &.radioSkipped {
+    background: $color-text-tertiary;
+    border-color: $color-text-tertiary;
+  }
+}
+
+.radioIcon {
+  color: $color-text-white;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.name {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  @include text-ellipsis;
+}
+
+.priorityTag {
+  padding: 2rpx 12rpx;
+  background: rgba($color-error, 0.1);
+  border-radius: $radius-xs;
+  flex-shrink: 0;
+}
+
+.priorityText {
+  font-size: $font-size-xs;
+  color: $color-error;
+  font-weight: $font-weight-medium;
+}
+
+.description {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-top: 4rpx;
+  display: block;
+  @include text-ellipsis;
+}
+
+.actions {
+  flex-shrink: 0;
+  margin-left: $spacing-sm;
+}
+
+.actionBtn {
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  background: $color-bg-gray;
+
+  &.actionActive {
+    background: rgba($color-text-tertiary, 0.2);
+  }
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.actionText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}

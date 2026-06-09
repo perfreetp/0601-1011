@@ -1,0 +1,35 @@
+@use '@/styles/variables.scss' as *;
+
+.header {
+  padding: $spacing-lg 0 $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.titleArea {
+  flex: 1;
+}
+
+.title {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  display: block;
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-top: $spacing-xs;
+  display: block;
+}
+
+.rightArea {
+  flex-shrink: 0;
+}

@@ -1,0 +1,296 @@
+@use '@/styles/variables.scss' as *;
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.uploadBtn {
+  @include button-reset;
+  height: $button-height-md;
+  padding: 0 $spacing-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+  border-radius: $radius-button;
+  border: none;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.uploadBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}
+
+.selectModeBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: $color-primary-bg;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-md;
+}
+
+.selectInfo {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.selectActions {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.selectAction {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  padding: $spacing-xs $spacing-sm;
+}
+
+.selectActionPrimary {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  background: $color-primary;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-sm;
+  font-weight: $font-weight-medium;
+}
+
+.statsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-sm 0;
+  margin-bottom: $spacing-sm;
+}
+
+.statsText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.toggleSelectBtn {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.locationGroup {
+  margin-bottom: $spacing-lg;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-sm 0;
+  margin-bottom: $spacing-sm;
+}
+
+.groupTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.groupCount {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  background: $color-bg-gray;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-round;
+}
+
+.materialGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+
+.materialItem {
+  width: calc((100% - 16rpx) / 3);
+  aspect-ratio: 1;
+  position: relative;
+  border-radius: $radius-md;
+  overflow: hidden;
+  background: $color-bg-gray;
+  transition: all $transition-fast;
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &.selected {
+    border: 4rpx solid $color-primary;
+  }
+}
+
+.materialThumb {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.checkCircle {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: $radius-round;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+
+  &.checked {
+    background: $color-primary;
+    border-color: $color-primary;
+  }
+}
+
+.checkIcon {
+  color: $color-text-white;
+  font-size: 20rpx;
+  font-weight: $font-weight-bold;
+}
+
+.categoryLabel {
+  position: absolute;
+  top: 8rpx;
+  left: 8rpx;
+  padding: 2rpx 10rpx;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: $radius-xs;
+  z-index: 2;
+}
+
+.categoryText {
+  font-size: 18rpx;
+  color: $color-text-white;
+}
+
+.videoBadge {
+  position: absolute;
+  left: 8rpx;
+  bottom: 8rpx;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  padding: 2rpx 10rpx;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: $radius-xs;
+  z-index: 2;
+}
+
+.videoIcon {
+  font-size: 18rpx;
+  color: $color-text-white;
+}
+
+.videoDuration {
+  font-size: 18rpx;
+  color: $color-text-white;
+}
+
+.shakyBadge {
+  position: absolute;
+  right: 8rpx;
+  bottom: 8rpx;
+  padding: 2rpx 10rpx;
+  background: rgba($color-warning, 0.9);
+  border-radius: $radius-xs;
+  z-index: 2;
+}
+
+.shakyText {
+  font-size: 18rpx;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20rpx);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+.selectedInfo {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.selectedCount {
+  font-size: $font-size-lg;
+  color: $color-primary;
+  font-weight: $font-weight-bold;
+}
+
+.produceBtn {
+  @include button-reset;
+  height: $button-height-lg;
+  padding: 0 $spacing-xl;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+  border-radius: $radius-button;
+  border: none;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    background: $color-bg-gray;
+  }
+}
+
+.produceBtnText {
+  font-size: $font-size-md;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}
+
+.emptyState {
+  padding: $spacing-xl * 3;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 100rpx;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.emptyTitle {
+  font-size: $font-size-lg;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-xs;
+  display: block;
+}
+
+.emptyDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.pageBottomPadding {
+  height: 180rpx;
+}
