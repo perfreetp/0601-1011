@@ -2,10 +2,17 @@ import React from 'react';
 import { View, Text, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useAppStore } from '@/store/appStore';
+import { mockMusicTracks } from '@/data/material';
 import { formatDateTime, getCategoryLabel } from '@/utils';
 import PageHeader from '@/components/PageHeader';
 import ProductionCard from '@/components/ProductionCard';
 import styles from './index.module.scss';
+
+const getMusicName = (musicId?: string, musicName?: string) => {
+  if (musicName) return musicName;
+  if (!musicId) return '';
+  return mockMusicTracks.find(m => m.id === musicId)?.name || '';
+};
 
 const ProductionPage: React.FC = () => {
   const { productions, selectedMaterials, drafts } = useAppStore();
@@ -90,7 +97,7 @@ const ProductionPage: React.FC = () => {
                   <View className={styles.draftMeta}>
                     <Text className={styles.draftTime}>{formatDateTime(draft.updatedAt)}</Text>
                     <Text className={styles.draftTime}>· {draft.materialCount} 素材</Text>
-                    {draft.musicName && <Text className={styles.draftTime}>· 🎵 {draft.musicName}</Text>}
+                    {getMusicName(draft.musicId, draft.musicName) && <Text className={styles.draftTime}>· 🎵 {getMusicName(draft.musicId, draft.musicName)}</Text>}
                   </View>
                   <View className={styles.draftTags}>
                     {draft.teamWatermark && <Text className={styles.draftTag}>💧 水印</Text>}

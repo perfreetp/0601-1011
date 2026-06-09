@@ -20,7 +20,7 @@ export const mockAlbums: MemoryAlbum[] = [
     shareLink: 'https://tripclip.app/album/al1',
     views: 156,
     productionId: 'prod1',
-    confirmedMemberIds: ['mem1', 'mem2', 'mem3', 'mem4']
+    confirmedMemberIds: ['1', '2', '3', '4']
   },
   {
     id: 'al2',
@@ -36,6 +36,6 @@ export const mockAlbums: MemoryAlbum[] = [
     createdAt: '2024-06-11 20:30',
     shareLink: 'https://tripclip.app/album/al2',
     views: 89,
-    confirmedMemberIds: ['mem1']
+    confirmedMemberIds: ['1']
   }
 ];

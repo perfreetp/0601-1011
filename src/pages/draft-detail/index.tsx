@@ -3,6 +3,7 @@ import { View, Text, Image, Button } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import classnames from 'classnames';
 import { useAppStore } from '@/store/appStore';
+import { mockMusicTracks } from '@/data/material';
 import { formatDateTime } from '@/utils';
 import PageHeader from '@/components/PageHeader';
 import styles from './index.module.scss';
@@ -13,6 +14,13 @@ const DraftDetailPage: React.FC = () => {
 
   const { getDraft, members, materials, publishVideo } = useAppStore();
   const draft = getDraft(draftId || '');
+
+  const draftMusicName = useMemo(() => {
+    if (!draft) return '';
+    if (draft.musicName) return draft.musicName;
+    const track = mockMusicTracks.find(m => m.id === draft.musicId);
+    return track?.name || '';
+  }, [draft]);
 
   const draftMaterials = useMemo(() => {
     if (!draft) return [];
@@ -90,10 +98,10 @@ const DraftDetailPage: React.FC = () => {
             <Text className={styles.previewMetaText}>时长 {draft.duration}</Text>
             <Text className={styles.previewMetaText}>·</Text>
             <Text className={styles.previewMetaText}>{draft.materialCount} 个素材</Text>
-            {draft.musicName && (
+            {draftMusicName && (
               <>
                 <Text className={styles.previewMetaText}>·</Text>
-                <Text className={styles.previewMetaTag}>🎵 {draft.musicName}</Text>
+                <Text className={styles.previewMetaTag}>🎵 {draftMusicName}</Text>
               </>
             )}
           </View>
@@ -108,7 +116,7 @@ const DraftDetailPage: React.FC = () => {
               <Text className={styles.configIcon}>🎵</Text>
               <Text className={styles.configLabel}>背景音乐</Text>
             </View>
-            <Text className={styles.configValue}>{draft.musicName || '未选择'}</Text>
+            <Text className={styles.configValue}>{draftMusicName || '未选择'}</Text>
           </View>
 
           <View className={styles.configRow}>

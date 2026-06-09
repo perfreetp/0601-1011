@@ -174,9 +174,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   saveDraft: (config, existingId) => {
-    const { drafts, selectedMaterials } = get();
+    const { drafts, selectedMaterials, materials } = get();
     const materialIds = config.materialIds.length > 0 ? config.materialIds : selectedMaterials;
-    const materialCount = config.materialCount || materialIds.length;
+    const actualMaterialIds = materialIds.filter(id => materials.some(m => m.id === id));
+    const materialCount = actualMaterialIds.length;
     const musicTrack = mockMusicTracks.find(m => m.id === config.musicId);
 
     if (existingId) {
@@ -185,9 +186,9 @@ export const useAppStore = create<AppState>((set, get) => ({
         return {
           ...d,
           ...config,
-          materialIds,
+          materialIds: actualMaterialIds,
           materialCount,
-          musicName: musicTrack?.name,
+          musicName: musicTrack?.name || d.musicName,
           updatedAt: nowStr(),
           thumbnail: config.thumbnail || d.thumbnail,
           progress: config.progress ?? Math.min((d.progress || 0) + 10, 95)
@@ -200,7 +201,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       const newDraft: Draft = {
         id,
         ...config,
-        materialIds,
+        materialIds: actualMaterialIds,
         materialCount,
         musicName: musicTrack?.name,
         updatedAt: nowStr(),
@@ -217,25 +218,26 @@ export const useAppStore = create<AppState>((set, get) => ({
   publishVideo: (config) => {
     const { productions, members, selectedMaterials, materials } = get();
     const materialIds = config.materialIds.length > 0 ? config.materialIds : selectedMaterials;
-    const materialCount = config.materialCount || materialIds.length;
+    const actualMaterialIds = materialIds.filter(id => materials.some(m => m.id === id));
+    const materialCount = actualMaterialIds.length;
     const musicTrack = mockMusicTracks.find(m => m.id === config.musicId);
     const productionId = genId('prod');
 
     const videoPhotoUrls = materials
-      .filter(m => materialIds.includes(m.id))
+      .filter(m => actualMaterialIds.includes(m.id))
       .map(m => m.url);
 
     const album = get().createAlbum({
       title: config.title,
       productionId,
       confirmedMemberIds: config.confirmedMemberIds,
-      photoUrls: videoPhotoUrls.length > 0 ? videoPhotoUrls : undefined
+      photoUrls: videoPhotoUrls
     });
 
     const newProduction: Production = {
       id: productionId,
       ...config,
-      materialIds,
+      materialIds: actualMaterialIds,
       materialCount,
       musicName: musicTrack?.name,
       status: 'published',

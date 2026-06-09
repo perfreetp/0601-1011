@@ -29,9 +29,9 @@ const PublishPage: React.FC = () => {
   const source = sourceDraft || sourceProd;
 
   const initialMaterials = source?.materialIds?.length > 0
-    ? source.materialIds
-    : selectedMaterials;
-  const initialMatCount = source?.materialCount || initialMaterials.length || 12;
+    ? source.materialIds.filter(id => materials.some(m => m.id === id))
+    : selectedMaterials.filter(id => materials.some(m => m.id === id));
+  const initialMatCount = initialMaterials.length;
 
   const matForCover = materials.find(m => initialMaterials.includes(m.id));
   const initialCover = source?.coverUrl || matForCover?.thumbnail || matForCover?.url || 'https://picsum.photos/id/1018/400/700';

@@ -41,12 +41,13 @@ type Stage = 'home' | 'pick' | 'confirm';
 
 interface PendingMaterial {
   id: string;
-  picId: number;
+  picId?: number;
   type: MaterialType;
   category: MaterialCategory;
   url: string;
   thumbnail: string;
   location: string;
+  duration?: number;
 }
 
 const ContributionPage: React.FC = () => {
@@ -92,6 +93,42 @@ const ContributionPage: React.FC = () => {
         ? prev.filter(id => id !== picId)
         : [...prev, picId]
     );
+  };
+
+  const handleChooseFromAlbum = () => {
+    Taro.chooseMedia({
+      count: 9,
+      mediaType: ['image', 'video'],
+      sourceType: ['album'],
+      success: (res) => {
+        if (!res.tempFiles || res.tempFiles.length === 0) {
+          Taro.showToast({ title: '未选择任何素材', icon: 'none' });
+          return;
+        }
+        const defaultLoc = locationOptions[0] || '稻城亚丁';
+        const list: PendingMaterial[] = res.tempFiles.map((file, idx) => {
+          const rand = Math.random().toString(36).slice(2, 7);
+          const fileType = (file as any).fileType || (file as any).mediaType;
+          const isVideo = fileType === 'video' || (file as any).duration !== undefined;
+          const thumbnail = (file as any).thumbTempFilePath || file.tempFilePath;
+          return {
+            id: `pending_real_${idx}_${rand}`,
+            type: isVideo ? 'video' : 'photo',
+            category: 'landscape',
+            url: file.tempFilePath,
+            thumbnail,
+            location: defaultLoc,
+            duration: (file as any).duration
+          };
+        });
+        setPending(list);
+        setStage('confirm');
+      },
+      fail: (err) => {
+        console.warn('chooseMedia failed, fallback to mock picker:', err);
+        setStage('pick');
+      }
+    });
   };
 
   const goToConfirm = () => {
@@ -142,7 +179,7 @@ const ContributionPage: React.FC = () => {
         category: item.category,
         location: item.location || '未分类',
         uploadedBy: leader.id,
-        duration: isVideo ? Math.floor(Math.random() * 60) + 10 : undefined,
+        duration: isVideo ? (item.duration || Math.floor(Math.random() * 60) + 10) : undefined,
         isShaky: Math.random() < 0.25
       });
     });
@@ -158,6 +195,10 @@ const ContributionPage: React.FC = () => {
       title: `已上传 ${parts.join('/')} 素材`,
       icon: 'success'
     });
+
+    setTimeout(() => {
+      Taro.switchTab({ url: '/pages/material/index' });
+    }, 800);
   };
 
   const handleInvite = () => {
@@ -167,7 +208,7 @@ const ContributionPage: React.FC = () => {
 
   const renderHome = () => (
     <>
-      <View className={styles.uploadCard} onClick={() => setStage('pick')}>
+      <View className={styles.uploadCard} onClick={handleChooseFromAlbum}>
         <Text className={styles.uploadIcon}>📤</Text>
         <Text className={styles.uploadTitle}>上传我的素材</Text>
         <Text className={styles.uploadDesc}>从手机相册选择照片和视频，多选后进入确认上传</Text>
