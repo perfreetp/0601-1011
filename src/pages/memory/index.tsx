@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, Input, Button, Image } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import React, { useMemo, useState, useEffect } from 'react';
+import { View, Text, Input, Button, Image, ScrollView } from '@tarojs/components';
+import Taro, { useDidShow } from '@tarojs/taro';
+import classnames from 'classnames';
 import { useAppStore } from '@/store/appStore';
 import PageHeader from '@/components/PageHeader';
 import MemoryCard from '@/components/MemoryCard';
@@ -16,12 +17,55 @@ const MemoryPage: React.FC = () => {
     teamName,
     selectedMaterials,
     createAlbum,
-    incrementAlbumViews
+    incrementAlbumViews,
+    latestPublishedAlbumId,
+    clearLatestPublishedAlbum
   } = useAppStore();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [albumTitle, setAlbumTitle] = useState(`${teamName}的旅行相册`);
   const [latestAlbum, setLatestAlbum] = useState<string | null>(null);
+  const [highlightAlbumId, setHighlightAlbumId] = useState<string | null>(null);
+  const [highlightProdId, setHighlightProdId] = useState<string | null>(null);
+  const scrollViewRef = React.useRef<any>(null);
+
+  useDidShow(() => {
+    if (latestPublishedAlbumId) {
+      const targetAlbum = albums.find(a => a.id === latestPublishedAlbumId);
+      setHighlightAlbumId(latestPublishedAlbumId);
+      setLatestAlbum(latestPublishedAlbumId);
+      if (targetAlbum?.productionId) {
+        setHighlightProdId(targetAlbum.productionId);
+      }
+      setTimeout(() => {
+        Taro.pageScrollTo({
+          scrollTop: 0,
+          duration: 300
+        });
+      }, 100);
+      setTimeout(() => {
+        clearLatestPublishedAlbum();
+      }, 3000);
+    }
+  });
+
+  useEffect(() => {
+    if (highlightAlbumId) {
+      const timer = setTimeout(() => {
+        setHighlightAlbumId(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightAlbumId]);
+
+  useEffect(() => {
+    if (highlightProdId) {
+      const timer = setTimeout(() => {
+        setHighlightProdId(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightProdId]);
 
   const publishedVideos = useMemo(
     () => productions.filter(p => p.status === 'published'),
@@ -35,11 +79,35 @@ const MemoryPage: React.FC = () => {
   }), [materials, albums]);
 
   const handleCopyLink = (link: string, albumId: string) => {
-    incrementAlbumViews(albumId);
-    Taro.setClipboardData({
-      data: link,
-      success: () => Taro.showToast({ title: '链接已复制', icon: 'success' })
-    });
+    const album = albums.find(a => a.id === albumId);
+    if (album) {
+      const prod = productions.find(p => p.id === album.productionId);
+      const confirmedCount = album.confirmedMemberIds?.length || 0;
+      const videoInfo = prod
+        ? `\n🎬 对应视频：${prod.title}（${prod.duration}）`
+        : '';
+      Taro.showModal({
+        title: '📖 分享预览',
+        content: `「${album.title}」\n🖼️ ${album.photos.length} 张照片\n👥 ${confirmedCount}/${members.length} 人已确认${videoInfo}\n\n复制链接后可分享给队友查看完整相册`,
+        confirmText: '复制链接',
+        cancelText: '取消',
+        success: (res) => {
+          if (res.confirm) {
+            incrementAlbumViews(albumId);
+            Taro.setClipboardData({
+              data: link,
+              success: () => Taro.showToast({ title: '链接已复制', icon: 'success' })
+            });
+          }
+        }
+      });
+    } else {
+      incrementAlbumViews(albumId);
+      Taro.setClipboardData({
+        data: link,
+        success: () => Taro.showToast({ title: '链接已复制', icon: 'success' })
+      });
+    }
   };
 
   const handleCreateAlbum = () => {
@@ -139,20 +207,22 @@ const MemoryPage: React.FC = () => {
       {albums.length > 0 ? (
         <View className={styles.albumList}>
           {albums.map(album => (
-            <View key={album.id}>
+            <View
+              key={album.id}
+              className={classnames(highlightAlbumId === album.id && styles.highlightItem)}
+            >
               <MemoryCard
                 album={album}
+                members={members}
                 onClick={(a) => {
                   Taro.navigateTo({
                     url: `/pages/album-detail/index?albumId=${a.id}${a.productionId ? `&productionId=${a.productionId}` : ''}`
                   });
                 }}
               />
-              {(album.confirmedMemberIds?.length || 0) > 0 && (
-                <View className={styles.albumMeta}>
-                  <Text className={styles.albumMetaText}>
-                    👥 已确认: {getConfirmedMemberNames(album.confirmedMemberIds || [])}
-                  </Text>
+              {highlightAlbumId === album.id && (
+                <View className={styles.newBadge}>
+                  <Text className={styles.newBadgeText}>✨ 刚发布</Text>
                 </View>
               )}
             </View>
@@ -174,24 +244,22 @@ const MemoryPage: React.FC = () => {
       {publishedVideos.length > 0 ? (
         <View className={styles.videoList}>
           {publishedVideos.map(video => (
-            <View key={video.id}>
+            <View
+              key={video.id}
+              className={classnames(highlightProdId === video.id && styles.highlightItem)}
+            >
               <ProductionCard
                 production={video}
+                members={members}
                 onClick={() => Taro.navigateTo({
                   url: `/pages/album-detail/index?productionId=${video.id}${video.albumId ? `&albumId=${video.albumId}` : ''}`
                 })}
               />
-              <View className={styles.albumMeta}>
-                <Text className={styles.albumMetaText}>
-                  🎵 {video.musicName || '未配乐'} ·
-                  💧{video.teamWatermark ? ' 水印' : ''}
-                  📝{video.autoSubtitles ? ' 字幕' : ''}
-                  📍{video.routeStickers ? ' 贴纸' : ''}
-                  {(video.confirmedMemberIds?.length || 0) > 0 &&
-                    ` · 👥 ${video.confirmedMemberIds?.length}/${members.length}人确认`
-                  }
-                </Text>
-              </View>
+              {highlightProdId === video.id && (
+                <View className={styles.newBadge}>
+                  <Text className={styles.newBadgeText}>✨ 刚发布</Text>
+                </View>
+              )}
             </View>
           ))}
         </View>

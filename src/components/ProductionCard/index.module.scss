@@ -111,3 +111,45 @@
   font-size: $font-size-xs;
   color: $color-primary;
 }
+
+.memberRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-top: $spacing-sm;
+}
+
+.memberAvatars {
+  display: flex;
+  align-items: center;
+}
+
+.memberAvatar {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  border: 3rpx solid $color-bg-card;
+  object-fit: cover;
+
+  &.avatarOverlap {
+    margin-left: -10rpx;
+  }
+
+  &.avatarExtra {
+    background: $color-primary-bg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.avatarExtraText {
+  font-size: 18rpx;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.memberCount {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}

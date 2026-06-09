@@ -286,3 +286,35 @@
   color: $color-text-white;
   font-weight: $font-weight-semibold;
 }
+
+.highlightItem {
+  position: relative;
+  border-radius: $radius-lg;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 16rpx rgba(59, 130, 246, 0);
+  }
+}
+
+.newBadge {
+  position: absolute;
+  top: -12rpx;
+  right: 12rpx;
+  z-index: 10;
+  background: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+  padding: 6rpx 20rpx;
+  border-radius: $radius-round;
+  box-shadow: 0 4rpx 12rpx rgba(239, 68, 68, 0.3);
+}
+
+.newBadgeText {
+  font-size: 20rpx;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}

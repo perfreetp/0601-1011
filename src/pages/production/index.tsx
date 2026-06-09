@@ -15,7 +15,7 @@ const getMusicName = (musicId?: string, musicName?: string) => {
 };
 
 const ProductionPage: React.FC = () => {
-  const { productions, selectedMaterials, drafts } = useAppStore();
+  const { productions, selectedMaterials, drafts, members } = useAppStore();
 
   const handleCreate = () => {
     if (selectedMaterials.length === 0) {
@@ -125,6 +125,7 @@ const ProductionPage: React.FC = () => {
             <ProductionCard
               key={p.id}
               production={p}
+              members={members}
               onClick={() => Taro.navigateTo({ url: `/pages/publish/index?id=${p.id}` })}
             />
           ))}

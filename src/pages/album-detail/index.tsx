@@ -12,7 +12,7 @@ const AlbumDetailPage: React.FC = () => {
   const albumId = router.params.albumId;
   const productionId = router.params.productionId;
 
-  const { albums, productions, members, getAlbumById, incrementAlbumViews, getProduction } = useAppStore();
+  const { albums, productions, members, getAlbumById, incrementAlbumViews, getProduction, confirmMember } = useAppStore();
 
   const album = useMemo(() => {
     if (albumId) return albums.find(a => a.id === albumId);
@@ -23,6 +23,8 @@ const AlbumDetailPage: React.FC = () => {
     return albums.find(a => a.productionId === productionId);
   }, [albumId, productionId, albums, productions]);
 
+  const activeAlbumId = album?.id || albumId;
+
   const production = useMemo(() => {
     if (!album) return undefined;
     if (album.productionId) return productions.find(p => p.id === album.productionId);
@@ -32,6 +34,24 @@ const AlbumDetailPage: React.FC = () => {
 
   const confirmedMembers = members.filter(m => album?.confirmedMemberIds?.includes(m.id));
   const pendingMembers = members.filter(m => !album?.confirmedMemberIds?.includes(m.id));
+
+  const handleInviteMember = (memberId: string, memberName: string) => {
+    Taro.showModal({
+      title: '邀请成员确认',
+      content: `将向「${memberName}」发送确认提醒，确认后该成员会出现在已确认列表中，是否继续？`,
+      confirmText: '发送邀请',
+      success: (res) => {
+        if (res.confirm && activeAlbumId) {
+          Taro.showLoading({ title: '发送中...', mask: true });
+          setTimeout(() => {
+            confirmMember(activeAlbumId, memberId);
+            Taro.hideLoading();
+            Taro.showToast({ title: '已确认', icon: 'success' });
+          }, 600);
+        }
+      }
+    });
+  };
 
   if (!album) {
     return (
@@ -46,15 +66,28 @@ const AlbumDetailPage: React.FC = () => {
   }
 
   const handleCopyLink = () => {
-    if (album.shareLink) {
-      incrementAlbumViews(album.id);
-      Taro.setClipboardData({
-        data: album.shareLink,
-        success: () => {
-          Taro.showToast({ title: '链接已复制', icon: 'success' });
+    if (!album.shareLink) return;
+    const confirmedCount = confirmedMembers.length;
+    const videoInfo = production
+      ? `\n🎬 对应视频：${production.title}（${production.duration}）`
+      : '';
+    Taro.showModal({
+      title: '📖 分享预览',
+      content: `「${album.title}」\n🖼️ ${album.photos.length} 张照片\n👥 ${confirmedCount}/${members.length} 人已确认${videoInfo}\n\n复制链接后可分享给队友查看完整相册`,
+      confirmText: '复制链接',
+      cancelText: '取消',
+      success: (res) => {
+        if (res.confirm) {
+          incrementAlbumViews(album.id);
+          Taro.setClipboardData({
+            data: album.shareLink,
+            success: () => {
+              Taro.showToast({ title: '链接已复制', icon: 'success' });
+            }
+          });
         }
-      });
-    }
+      }
+    });
   };
 
   const handleViewVideo = () => {
@@ -188,6 +221,12 @@ const AlbumDetailPage: React.FC = () => {
                   {m.role === 'leader' && ' 👑'}
                 </Text>
                 <Text className={classnames(styles.memberStatus, styles.pending)}>待确认</Text>
+                <Button
+                  className={styles.inviteBtn}
+                  onClick={() => handleInviteMember(m.id, m.name)}
+                >
+                  <Text className={styles.inviteBtnText}>邀请确认</Text>
+                </Button>
               </View>
             ))}
           </View>

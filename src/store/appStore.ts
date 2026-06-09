@@ -34,8 +34,10 @@ interface AppState {
   members: Member[];
   selectedMaterials: string[];
   currentDay: number;
+  latestPublishedAlbumId: string | null;
 
   setCurrentDay: (day: number) => void;
+  clearLatestPublishedAlbum: () => void;
   toggleMaterialSelect: (id: string) => void;
   clearMaterialSelect: () => void;
   selectAllMaterials: () => void;
@@ -64,6 +66,7 @@ interface AppState {
   createAlbum: (options?: { title?: string; photoUrls?: string[]; productionId?: string; confirmedMemberIds?: string[] }) => MemoryAlbum;
   incrementAlbumViews: (albumId: string) => void;
   getAlbumById: (id: string) => MemoryAlbum | undefined;
+  confirmMember: (albumId: string, memberId: string) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -76,8 +79,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   members: mockMembers,
   selectedMaterials: [],
   currentDay: 0,
+  latestPublishedAlbumId: null,
 
   setCurrentDay: (day: number) => set({ currentDay: day }),
+  clearLatestPublishedAlbum: () => set({ latestPublishedAlbumId: null }),
 
   toggleMaterialSelect: (id: string) => {
     const { selectedMaterials } = get();
@@ -256,7 +261,8 @@ export const useAppStore = create<AppState>((set, get) => ({
         const sameTitle = d.title === config.title;
         const sameMaterials = d.materialIds.join(',') === materialIds.join(',');
         return !(sameTitle && sameMaterials);
-      })
+      }),
+      latestPublishedAlbumId: album.id
     });
     return { productionId, albumId: album.id };
   },
@@ -301,5 +307,26 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
   },
 
-  getAlbumById: (id) => get().albums.find(a => a.id === id)
+  getAlbumById: (id) => get().albums.find(a => a.id === id),
+
+  confirmMember: (albumId, memberId) => {
+    const { albums, productions } = get();
+    const album = albums.find(a => a.id === albumId);
+    if (!album) return;
+
+    const newConfirmed = album.confirmedMemberIds?.includes(memberId)
+      ? album.confirmedMemberIds
+      : [...(album.confirmedMemberIds || []), memberId];
+
+    set({
+      albums: albums.map(a =>
+        a.id === albumId ? { ...a, confirmedMemberIds: newConfirmed } : a
+      ),
+      productions: productions.map(p =>
+        p.albumId === albumId || (album.productionId && p.id === album.productionId)
+          ? { ...p, confirmedMemberIds: newConfirmed }
+          : p
+      )
+    });
+  }
 }));

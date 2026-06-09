@@ -278,6 +278,26 @@
   }
 }
 
+.inviteBtn {
+  margin-top: 8rpx;
+  padding: 4rpx 16rpx;
+  background: $color-primary-bg;
+  border-radius: $radius-xs;
+  line-height: 1.4;
+  height: auto;
+  min-height: 44rpx;
+}
+
+.inviteBtn::after {
+  border: none;
+}
+
+.inviteBtnText {
+  font-size: 20rpx;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
 .emptyVideo {
   background: $color-bg-card;
   border-radius: $radius-lg;
