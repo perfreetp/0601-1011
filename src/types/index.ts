@@ -67,19 +67,34 @@ export interface MusicTrack {
   duration: string;
 }
 
-export interface Production {
-  id: string;
+export interface PublishConfig {
   title: string;
   coverUrl: string;
+  duration: string;
+  materialIds: string[];
+  materialCount: number;
+  musicId: string;
+  musicName?: string;
+  stickerId: string;
+  teamWatermark: boolean;
+  autoSubtitles: boolean;
+  routeStickers: boolean;
+  removeShaky: boolean;
+  mergeMulti: boolean;
+  confirmedMemberIds: string[];
+}
+
+export interface Production extends PublishConfig {
+  id: string;
   status: 'draft' | 'processing' | 'ready' | 'published';
   createdAt: string;
-  duration: string;
-  materialCount: number;
+  updatedAt: string;
   teamName?: string;
   hasWatermark?: boolean;
   hasSubtitles?: boolean;
   hasStickers?: boolean;
-  musicName?: string;
+  progress?: number;
+  albumId?: string;
 }
 
 export interface MemoryAlbum {
@@ -90,11 +105,12 @@ export interface MemoryAlbum {
   createdAt: string;
   shareLink?: string;
   views: number;
+  productionId?: string;
+  confirmedMemberIds?: string[];
 }
 
-export interface Draft {
+export interface Draft extends PublishConfig {
   id: string;
-  title: string;
   updatedAt: string;
   thumbnail: string;
   progress: number;

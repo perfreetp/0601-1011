@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, Button, Input, ScrollView } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import classnames from 'classnames';
@@ -10,26 +10,80 @@ import styles from './index.module.scss';
 
 const PublishPage: React.FC = () => {
   const router = useRouter();
-  const { teamName, members, selectedMaterials, productions } = useAppStore();
-  const id = router.params.id;
+  const {
+    teamName,
+    members,
+    selectedMaterials,
+    materials,
+    saveDraft,
+    getDraft,
+    getProduction,
+    publishVideo
+  } = useAppStore();
 
-  const production = id ? productions.find(p => p.id === id) : null;
+  const draftId = router.params.draftId;
+  const prodId = router.params.id;
 
-  const [title, setTitle] = useState(production?.title || `${teamName}的旅行回忆`);
-  const [teamWatermark, setTeamWatermark] = useState(true);
-  const [autoSubtitles, setAutoSubtitles] = useState(true);
-  const [routeStickers, setRouteStickers] = useState(true);
-  const [removeShaky, setRemoveShaky] = useState(true);
-  const [mergeMulti, setMergeMulti] = useState(true);
-  const [selectedMusic, setSelectedMusic] = useState(mockMusicTracks[0].id);
-  const [selectedSticker, setSelectedSticker] = useState(mockStickers[0].id);
+  const sourceDraft = draftId ? getDraft(draftId) : undefined;
+  const sourceProd = prodId ? getProduction(prodId) : undefined;
+  const source = sourceDraft || sourceProd;
 
-  const confirmedMembers = members.slice(0, 4).map(m => m.id);
-  const coverUrl = production?.coverUrl || 'https://picsum.photos/id/1018/400/700';
-  const duration = production?.duration || '2:15';
-  const materialCount = production?.materialCount || selectedMaterials.length || 12;
+  const initialMaterials = source?.materialIds?.length > 0
+    ? source.materialIds
+    : selectedMaterials;
+  const initialMatCount = source?.materialCount || initialMaterials.length || 12;
+
+  const matForCover = materials.find(m => initialMaterials.includes(m.id));
+  const initialCover = source?.coverUrl || matForCover?.thumbnail || matForCover?.url || 'https://picsum.photos/id/1018/400/700';
+
+  const [title, setTitle] = useState(source?.title || `${teamName}的旅行回忆`);
+  const [teamWatermark, setTeamWatermark] = useState(source?.teamWatermark ?? true);
+  const [autoSubtitles, setAutoSubtitles] = useState(source?.autoSubtitles ?? true);
+  const [routeStickers, setRouteStickers] = useState(source?.routeStickers ?? true);
+  const [removeShaky, setRemoveShaky] = useState(source?.removeShaky ?? true);
+  const [mergeMulti, setMergeMulti] = useState(source?.mergeMulti ?? true);
+  const [selectedMusic, setSelectedMusic] = useState(source?.musicId || mockMusicTracks[0].id);
+  const [selectedSticker, setSelectedSticker] = useState(source?.stickerId || mockStickers[0].id);
+  const [confirmedMembers, setConfirmedMembers] = useState<string[]>(
+    source?.confirmedMemberIds || members.slice(0, 2).map(m => m.id)
+  );
+  const [coverUrl] = useState(initialCover);
+  const [duration] = useState(source?.duration || '2:15');
+  const [currentDraftId, setCurrentDraftId] = useState<string | undefined>(draftId);
+
+  const materialCount = initialMatCount;
+  const musicTrack = mockMusicTracks.find(m => m.id === selectedMusic);
+
+  const toggleMember = (mid: string) => {
+    setConfirmedMembers(prev =>
+      prev.includes(mid) ? prev.filter(i => i !== mid) : [...prev, mid]
+    );
+  };
+
+  const getPublishConfig = () => ({
+    title,
+    coverUrl,
+    duration,
+    materialIds: initialMaterials,
+    materialCount,
+    musicId: selectedMusic,
+    musicName: musicTrack?.name,
+    stickerId: selectedSticker,
+    teamWatermark,
+    autoSubtitles,
+    routeStickers,
+    removeShaky,
+    mergeMulti,
+    confirmedMemberIds: confirmedMembers
+  });
 
   const handleSave = () => {
+    const config = getPublishConfig();
+    const id = saveDraft({
+      ...config,
+      thumbnail: coverUrl
+    }, currentDraftId);
+    setCurrentDraftId(id);
     Taro.showToast({ title: '草稿已保存', icon: 'success' });
   };
 
@@ -44,17 +98,26 @@ const PublishPage: React.FC = () => {
   const handlePublish = () => {
     Taro.showModal({
       title: '发布确认',
-      content: '发布后将通知所有成员确认，确定发布吗？',
+      content: `将生成「${title}」并同步到回忆册，确定发布吗？`,
       success: (res) => {
         if (res.confirm) {
-          Taro.showLoading({ title: '正在发布...', mask: true });
+          Taro.showLoading({ title: '正在生成视频和相册...', mask: true });
+          const config = getPublishConfig();
           setTimeout(() => {
+            const { productionId, albumId } = publishVideo(config);
             Taro.hideLoading();
             Taro.showToast({ title: '发布成功！', icon: 'success' });
             setTimeout(() => {
-              Taro.switchTab({ url: '/pages/memory/index' });
-            }, 1500);
-          }, 2000);
+              Taro.showModal({
+                title: '发布完成',
+                content: `视频ID: ${productionId.slice(0, 12)}...\n相册ID: ${albumId.slice(0, 12)}...\n已自动同步到回忆册`,
+                showCancel: false,
+                success: () => {
+                  Taro.switchTab({ url: '/pages/memory/index' });
+                }
+              });
+            }, 800);
+          }, 1800);
         }
       }
     });
@@ -64,7 +127,7 @@ const PublishPage: React.FC = () => {
     <View className="pageContainer">
       <PageHeader
         title="发布视频"
-        subtitle={`已选 ${materialCount} 个素材`}
+        subtitle={`已选 ${materialCount} 个素材${sourceDraft ? ' · 继续编辑草稿' : sourceProd ? ' · 查看作品' : ''}`}
       />
 
       <View className={styles.previewArea}>
@@ -76,7 +139,7 @@ const PublishPage: React.FC = () => {
           <Text className={styles.previewDurationText}>{duration}</Text>
         </View>
         <View className={styles.previewOverlay}>
-          <Text className={styles.previewTeam}>{teamName}</Text>
+          {teamWatermark && <Text className={styles.previewTeam}>{teamName}</Text>}
           <Text className={styles.previewTitle}>{title}</Text>
         </View>
       </View>
@@ -99,7 +162,7 @@ const PublishPage: React.FC = () => {
             {mockMusicTracks.slice(0, 3).map(track => (
               <View
                 key={track.id}
-                className={styles.musicItem}
+                className={classnames(styles.musicItem, selectedMusic === track.id && styles.active)}
                 onClick={() => setSelectedMusic(track.id)}
               >
                 <View className={styles.musicInfo}>
@@ -219,21 +282,32 @@ const PublishPage: React.FC = () => {
         <View className={styles.formSection}>
           <Text className={styles.formLabel}>👥 成员确认 ({confirmedMembers.length}/{members.length})</Text>
           <View className={styles.memberList}>
-            {members.map(member => (
-              <View key={member.id} className={styles.memberConfirmItem}>
-                <Image
-                  className={styles.memberConfirmAvatar}
-                  src={member.avatar}
-                  mode="aspectFill"
-                />
-                <Text className={classnames(
-                  styles.memberConfirmStatus,
-                  !confirmedMembers.includes(member.id) && styles.pending
-                )}>
-                  {confirmedMembers.includes(member.id) ? '✓ 已确认' : '待确认'}
-                </Text>
-              </View>
-            ))}
+            {members.map(member => {
+              const isConfirmed = confirmedMembers.includes(member.id);
+              return (
+                <View
+                  key={member.id}
+                  className={classnames(styles.memberConfirmItem, isConfirmed && styles.confirmed)}
+                  onClick={() => toggleMember(member.id)}
+                >
+                  <Image
+                    className={styles.memberConfirmAvatar}
+                    src={member.avatar}
+                    mode="aspectFill"
+                  />
+                  <Text className={styles.memberConfirmName}>
+                    {member.name}
+                    {member.role === 'leader' && ' 👑'}
+                  </Text>
+                  <Text className={classnames(
+                    styles.memberConfirmStatus,
+                    !isConfirmed && styles.pending
+                  )}>
+                    {isConfirmed ? '✓ 已确认' : '待确认'}
+                  </Text>
+                </View>
+              );
+            })}
           </View>
         </View>
 

@@ -1,13 +1,33 @@
-import React, { useMemo } from 'react';
-import { View, Text, Image, Button } from '@tarojs/components';
+import React, { useMemo, useState } from 'react';
+import { View, Text, Image, Button, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import classnames from 'classnames';
 import { useAppStore } from '@/store/appStore';
+import { MaterialCategory, MaterialType } from '@/types';
 import PageHeader from '@/components/PageHeader';
 import MemberAvatar from '@/components/MemberAvatar';
 import styles from './index.module.scss';
 
+const PICSUM_PORTRAIT = [1027, 1062, 1074, 177, 338, 342, 433, 64, 65, 1005];
+const PICSUM_LANDSCAPE = [1015, 1018, 1019, 1025, 1036, 1037, 1039, 1043, 1044, 1045];
+const PICSUM_GROUP = [1027, 1083, 1084, 237, 240, 449, 450, 541, 550];
+const PICSUM_OTHER = [106, 121, 122, 129, 145, 150, 152, 153, 167];
+
+const randomOf = (arr: number[]) => arr[Math.floor(Math.random() * arr.length)];
+
 const ContributionPage: React.FC = () => {
-  const { members, materials, teamName } = useAppStore();
+  const { members, materials, teamName, itinerary, addMaterial } = useAppStore();
+
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadType, setUploadType] = useState<MaterialType>('photo');
+  const [uploadCategory, setUploadCategory] = useState<MaterialCategory>('landscape');
+  const [uploadLocation, setUploadLocation] = useState('');
+
+  const locationOptions = useMemo(() => {
+    const locs = new Set<string>();
+    itinerary.forEach(day => day.points.forEach(p => locs.add(p.location)));
+    return Array.from(locs).slice(0, 6);
+  }, [itinerary]);
 
   const memberStats = useMemo(() => {
     return members.map(m => ({
@@ -26,8 +46,74 @@ const ContributionPage: React.FC = () => {
       .slice(0, 5);
   }, [memberStats]);
 
+  const leader = members.find(m => m.role === 'leader') || members[0];
+
   const handleUpload = () => {
-    Taro.showToast({ title: '选择照片或视频上传', icon: 'none' });
+    setUploadType('photo');
+    setUploadCategory('landscape');
+    setUploadLocation(locationOptions[0] || '');
+    setShowUploadModal(true);
+  };
+
+  const doUpload = () => {
+    const picId = uploadCategory === 'portrait'
+      ? randomOf(PICSUM_PORTRAIT)
+      : uploadCategory === 'landscape'
+      ? randomOf(PICSUM_LANDSCAPE)
+      : uploadCategory === 'group'
+      ? randomOf(PICSUM_GROUP)
+      : randomOf(PICSUM_OTHER);
+
+    const url = `https://picsum.photos/id/${picId}/800/600`;
+    const thumbnail = `https://picsum.photos/id/${picId}/400/400`;
+
+    addMaterial({
+      type: uploadType,
+      url,
+      thumbnail,
+      category: uploadCategory,
+      location: uploadLocation || '未分类',
+      uploadedBy: leader.id,
+      duration: uploadType === 'video' ? Math.floor(Math.random() * 60) + 10 : undefined,
+      isShaky: Math.random() < 0.25
+    });
+
+    setShowUploadModal(false);
+    Taro.showToast({ title: '上传成功', icon: 'success' });
+  };
+
+  const handleBatchUpload = () => {
+    const count = Math.floor(Math.random() * 3) + 2;
+    for (let i = 0; i < count; i++) {
+      const cat: MaterialCategory = (['portrait', 'landscape', 'group', 'other'] as MaterialCategory[])[
+        Math.floor(Math.random() * 4)
+      ];
+      const picId = cat === 'portrait'
+        ? randomOf(PICSUM_PORTRAIT)
+        : cat === 'landscape'
+        ? randomOf(PICSUM_LANDSCAPE)
+        : cat === 'group'
+        ? randomOf(PICSUM_GROUP)
+        : randomOf(PICSUM_OTHER);
+
+      const url = `https://picsum.photos/id/${picId}/800/600`;
+      const thumbnail = `https://picsum.photos/id/${picId}/400/400`;
+      const t: MaterialType = Math.random() < 0.7 ? 'photo' : 'video';
+      const loc = locationOptions[Math.floor(Math.random() * locationOptions.length)] || '未分类';
+
+      addMaterial({
+        type: t,
+        url,
+        thumbnail,
+        category: cat,
+        location: loc,
+        uploadedBy: leader.id,
+        duration: t === 'video' ? Math.floor(Math.random() * 60) + 10 : undefined,
+        isShaky: Math.random() < 0.25
+      });
+    }
+    setShowUploadModal(false);
+    Taro.showToast({ title: `已上传 ${count} 个素材`, icon: 'success' });
   };
 
   const handleInvite = () => {
@@ -113,6 +199,88 @@ const ContributionPage: React.FC = () => {
           <Text className={styles.inviteBtnText}>邀请</Text>
         </Button>
       </View>
+
+      {showUploadModal && (
+        <View className={styles.modalMask} onClick={() => setShowUploadModal(false)}>
+          <View className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <Text className={styles.modalTitle}>📤 上传素材</Text>
+
+            <View className={styles.formGroup}>
+              <Text className={styles.formLabel}>选择类型</Text>
+              <View className={styles.segmentRow}>
+                <View
+                  className={classnames(styles.segmentItem, uploadType === 'photo' && styles.active)}
+                  onClick={() => setUploadType('photo')}
+                >
+                  <Text className={styles.segmentIcon}>🖼️</Text>
+                  <Text className={styles.segmentText}>照片</Text>
+                </View>
+                <View
+                  className={classnames(styles.segmentItem, uploadType === 'video' && styles.active)}
+                  onClick={() => setUploadType('video')}
+                >
+                  <Text className={styles.segmentIcon}>🎬</Text>
+                  <Text className={styles.segmentText}>视频</Text>
+                </View>
+              </View>
+            </View>
+
+            <View className={styles.formGroup}>
+              <Text className={styles.formLabel}>内容分类</Text>
+              <View className={styles.segmentRow}>
+                {([
+                  { k: 'portrait', label: '人像', icon: '👤' },
+                  { k: 'landscape', label: '风景', icon: '🏔️' },
+                  { k: 'group', label: '合影', icon: '👥' },
+                  { k: 'other', label: '其他', icon: '📷' }
+                ] as { k: MaterialCategory; label: string; icon: string }[]).map(cat => (
+                  <View
+                    key={cat.k}
+                    className={classnames(styles.segmentItem, uploadCategory === cat.k && styles.active)}
+                    onClick={() => setUploadCategory(cat.k)}
+                  >
+                    <Text className={styles.segmentIcon}>{cat.icon}</Text>
+                    <Text className={styles.segmentText}>{cat.label}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            <View className={styles.formGroup}>
+              <Text className={styles.formLabel}>拍摄地点</Text>
+              <View className={styles.locationTags}>
+                {locationOptions.length > 0 ? locationOptions.map(loc => (
+                  <View
+                    key={loc}
+                    className={classnames(styles.tagItem, uploadLocation === loc && styles.active)}
+                    onClick={() => setUploadLocation(loc)}
+                  >
+                    <Text className={styles.tagText}>{loc}</Text>
+                  </View>
+                )) : null}
+              </View>
+              <Input
+                className={styles.formInput}
+                value={uploadLocation}
+                onInput={(e) => setUploadLocation(e.detail.value)}
+                placeholder="或手动输入地点"
+              />
+            </View>
+
+            <View className={styles.modalButtons}>
+              <Button className={styles.modalCancel} onClick={() => setShowUploadModal(false)}>
+                <Text className={styles.modalCancelText}>取消</Text>
+              </Button>
+              <Button className={styles.modalSecondary} onClick={handleBatchUpload}>
+                <Text className={styles.modalSecondaryText}>随机批量</Text>
+              </Button>
+              <Button className={styles.modalConfirm} onClick={doUpload}>
+                <Text className={styles.modalConfirmText}>确认上传</Text>
+              </Button>
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 };

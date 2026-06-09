@@ -2,14 +2,13 @@ import React from 'react';
 import { View, Text, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useAppStore } from '@/store/appStore';
-import { formatDateTime } from '@/utils';
-import { mockDrafts } from '@/data/production';
+import { formatDateTime, getCategoryLabel } from '@/utils';
 import PageHeader from '@/components/PageHeader';
 import ProductionCard from '@/components/ProductionCard';
 import styles from './index.module.scss';
 
 const ProductionPage: React.FC = () => {
-  const { productions, selectedMaterials } = useAppStore();
+  const { productions, selectedMaterials, drafts } = useAppStore();
 
   const handleCreate = () => {
     if (selectedMaterials.length === 0) {
@@ -20,6 +19,10 @@ const ProductionPage: React.FC = () => {
       return;
     }
     Taro.navigateTo({ url: '/pages/publish/index' });
+  };
+
+  const handleEditDraft = (draftId: string) => {
+    Taro.navigateTo({ url: `/pages/publish/index?draftId=${draftId}` });
   };
 
   const features = [
@@ -71,22 +74,36 @@ const ProductionPage: React.FC = () => {
         ))}
       </View>
 
-      {mockDrafts.length > 0 && (
+      {drafts.length > 0 && (
         <View className={styles.draftsSection}>
-          <Text className={styles.sectionTitle}>📝 编辑草稿 ({mockDrafts.length})</Text>
+          <Text className={styles.sectionTitle}>📝 编辑草稿 ({drafts.length})</Text>
           <View className={styles.draftList}>
-            {mockDrafts.map(draft => (
-              <View key={draft.id} className={styles.draftItem}>
+            {drafts.map(draft => (
+              <View
+                key={draft.id}
+                className={styles.draftItem}
+                onClick={() => handleEditDraft(draft.id)}
+              >
                 <Image className={styles.draftThumb} src={draft.thumbnail} mode="aspectFill" />
                 <View className={styles.draftContent}>
                   <Text className={styles.draftTitle}>{draft.title}</Text>
                   <View className={styles.draftMeta}>
                     <Text className={styles.draftTime}>{formatDateTime(draft.updatedAt)}</Text>
-                    <Text className={styles.draftTime}>编辑进度 {draft.progress}%</Text>
+                    <Text className={styles.draftTime}>· {draft.materialCount} 素材</Text>
+                    {draft.musicName && <Text className={styles.draftTime}>· 🎵 {draft.musicName}</Text>}
+                  </View>
+                  <View className={styles.draftTags}>
+                    {draft.teamWatermark && <Text className={styles.draftTag}>💧 水印</Text>}
+                    {draft.autoSubtitles && <Text className={styles.draftTag}>📝 字幕</Text>}
+                    {draft.routeStickers && <Text className={styles.draftTag}>📍 贴纸</Text>}
+                    {draft.confirmedMemberIds.length > 0 && (
+                      <Text className={styles.draftTag}>👥 {draft.confirmedMemberIds.length}人确认</Text>
+                    )}
                   </View>
                   <View className={styles.progressBar}>
                     <View className={styles.progressFill} style={{ width: `${draft.progress}%` }} />
                   </View>
+                  <Text className={styles.progressHint}>点击继续编辑 · 进度 {draft.progress}%</Text>
                 </View>
               </View>
             ))}

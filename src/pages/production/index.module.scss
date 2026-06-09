@@ -150,6 +150,28 @@
   color: $color-text-tertiary;
 }
 
+.draftTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  margin: $spacing-xs 0;
+}
+
+.draftTag {
+  font-size: 20rpx;
+  color: $color-primary;
+  background: rgba($color-primary, 0.1);
+  padding: 2rpx 12rpx;
+  border-radius: $radius-round;
+}
+
+.progressHint {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+  display: block;
+}
+
 .progressBar {
   height: 8rpx;
   background: $color-bg-gray;

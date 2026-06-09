@@ -208,3 +208,173 @@
   font-size: $font-size-md;
   color: $color-text-tertiary;
 }
+
+.addDayItem {
+  border: 2rpx dashed $color-border;
+  background: transparent;
+
+  .dayIndex {
+    color: $color-primary;
+    font-size: 44rpx;
+    line-height: 1;
+  }
+
+  .dayDate {
+    color: $color-text-secondary;
+  }
+}
+
+.addPointCard {
+  display: flex;
+  align-items: flex-start;
+  padding: $spacing-md $spacing-lg $spacing-md 56rpx;
+  margin-bottom: $spacing-sm;
+  position: relative;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  border: 2rpx dashed $color-border;
+  transition: all $transition-fast;
+
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.addPointDot {
+  position: absolute;
+  left: 16rpx;
+  top: 28rpx;
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  background: $color-bg-page;
+  border: 2rpx dashed $color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.addPointPlus {
+  font-size: $font-size-xl;
+  color: $color-primary;
+  line-height: 1;
+  font-weight: $font-weight-bold;
+}
+
+.addPointBody {
+  flex: 1;
+}
+
+.addPointTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+  display: block;
+}
+
+.addPointDesc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+  display: block;
+}
+
+.modalMask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: $spacing-lg;
+}
+
+.modalContent {
+  width: 100%;
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.modalTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-lg;
+  display: block;
+  text-align: center;
+}
+
+.formGroup {
+  margin-bottom: $spacing-md;
+}
+
+.formRow {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.formGroupHalf {
+  flex: 1;
+}
+
+.formLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+  display: block;
+}
+
+.formInput {
+  width: 100%;
+  height: 72rpx;
+  padding: 0 $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  border: 2rpx solid $color-border;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.modalButtons {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-lg;
+}
+
+.modalCancel {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-md;
+  background: $color-bg-page;
+  border-radius: $radius-button;
+  border: 2rpx solid $color-border;
+}
+
+.modalCancelText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.modalConfirm {
+  @include button-reset;
+  flex: 1;
+  height: $button-height-md;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+  border-radius: $radius-button;
+  border: none;
+}
+
+.modalConfirmText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}

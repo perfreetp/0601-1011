@@ -169,6 +169,19 @@
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
+  padding: $spacing-xs;
+  border-radius: $radius-md;
+  border: 2rpx solid transparent;
+  transition: all $transition-fast;
+
+  &.confirmed {
+    background: rgba($color-success, 0.1);
+    border-color: $color-success;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
 }
 
 .memberConfirmAvatar {
@@ -176,6 +189,18 @@
   height: 72rpx;
   border-radius: $radius-round;
   margin-bottom: 8rpx;
+}
+
+.memberConfirmName {
+  font-size: 20rpx;
+  color: $color-text-secondary;
+  margin-bottom: 4rpx;
+  display: block;
+  text-align: center;
+  max-width: 100rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .memberConfirmStatus {
@@ -308,11 +333,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: $spacing-sm 0;
+  padding: $spacing-sm $spacing-xs;
   border-bottom: 2rpx solid $color-divider;
+  border-radius: $radius-sm;
+  transition: all $transition-fast;
+
+  &.active {
+    background: rgba($color-primary, 0.08);
+  }
 
   &:last-child {
     border-bottom: none;
+  }
+
+  &:active {
+    background: $color-bg-hover;
   }
 }
 
